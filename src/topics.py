@@ -1,5 +1,6 @@
 import os
 import re
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -69,6 +70,25 @@ def save_topics(topics, out_path, title):
             f.write(f"Topic {i}: " + ", ".join(terms) + "\n")
 
 
+def plot_topic(topic_words, topic_id, out_dir="outputs/figures"):
+    os.makedirs(out_dir, exist_ok=True)
+
+    # einfache Ranggewichtung (höchstes Wort = höchste Relevanz)
+    weights = list(range(len(topic_words), 0, -1))
+
+    plt.figure(figsize=(8, 4))
+    plt.barh(topic_words[::-1], weights[::-1])
+    plt.xlabel("Relative Relevanz")
+    plt.title(f"LDA Topic {topic_id}")
+    plt.tight_layout()
+
+    out_path = os.path.join(out_dir, f"topic_{topic_id}.png")
+    plt.savefig(out_path, dpi=300)
+    plt.close()
+
+    print(f"Abbildung gespeichert: {out_path}")
+
+
 if __name__ == "__main__":
     path = r"data\raw\olist_order_reviews_dataset.csv"
     try:
@@ -87,6 +107,11 @@ if __name__ == "__main__":
 
     save_topics(lsa_topics, r"outputs\topics_lsa.txt", "LSA Topics (TF-IDF+SVD)")
     save_topics(lda_topics, r"outputs\topics_lda.txt", "LDA Topics (BoW+LDA)")
+
+    # Visualisierung ausgewählter Topics (z.B. 3 Stück)
+    plot_topic(lda_topics[0], topic_id=1)
+    plot_topic(lda_topics[1], topic_id=2)
+    plot_topic(lda_topics[2], topic_id=3)
 
     print("done. output:")
     print(" - outputs\\topics_lsa.txt")
